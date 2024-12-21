@@ -46,15 +46,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-python-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-python-
 
       # 安装依赖
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt --no-cache-dir
+          
+      - name: Verify dependencies
+        run: python -m pip check
 
       # 执行任务
       - name: Run sign in script
@@ -62,4 +65,5 @@ jobs:
           USER: ${{ secrets.USER }}
           TZ: Asia/Shanghai  # 确保脚本运行时也使用正确的时区
         run: |
+          set -e  # 确保遇到错误时停止执行
           python main.py
